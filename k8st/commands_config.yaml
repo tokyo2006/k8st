@@ -1,0 +1,15 @@
+commands:
+  - name: del-rel-ver
+    help: "Delete release version secret"
+  - name: ctx
+    help: "Set kubectl context"
+  - name: debug
+    help: "bash into a pod through debug container"
+    arguments:
+      - name: image
+        help: "image to use for debug container"
+        default: "alpine:latest"
+        required: false
+  - name: exec
+    help: "exec into a pod's container"
+  

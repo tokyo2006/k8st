@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "k8st"
+version = "0.1.2"
+description = "This is command tool for managing k8s resources"
+authors = ["Chen Zeng <rurounikexin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+colorama = "^0.4.6"
+prompt-toolkit = "^3.0.48"
+paramiko = "^3.5.0"
+sshtunnel = "^0.4.0"
+inquirer = "^3.4.0"
+pyyaml = "^6.0.2"
+pytest = "^8.3.4"
+pytest-cov = "^4.1.0"
+[tool.poetry.scripts]
+k8st = "k8st.main:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
