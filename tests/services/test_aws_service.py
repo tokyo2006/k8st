@@ -55,3 +55,6 @@ region = eu-west-1
         self.assertIn('staging', profiles)
         self.assertNotIn('default', profiles)
 
+if __name__ == '__main__':
+    unittest.main()
+

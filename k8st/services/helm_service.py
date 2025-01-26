@@ -2,12 +2,45 @@ import subprocess
 import json
 from ..utils.console import ConsoleOutput
 from ..logger_confiuration import logger
+from .required_package import install_required_package_manager      
+import platform
 
 class HelmService:
     def __init__(self):
         if not self.is_helm_installed():
-            raise Exception(ConsoleOutput.print_red("Helm is not installed!Please install helm first."))
-    
+            install_helm(self)
+
+    def install_helm(self):
+        """Install Helm based on the operating system"""
+        try:
+            system = platform.system().lower()
+            install_required_package_manager(system)
+            if system == "darwin":  # macOS
+                # 安装 helm
+                subprocess.run(['brew', 'install', 'helm'], check=True)
+            elif system == "linux":
+                # 使用官方脚本安装 Helm
+                ConsoleOutput.print_yellow("Installing Helm using official script...")
+                subprocess.run(['curl', '-fsSL', '-o', 'get_helm.sh', 'https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3'], check=True)
+                subprocess.run(['chmod', '700', 'get_helm.sh'], check=True)
+                subprocess.run(['./get_helm.sh'], check=True)
+                subprocess.run(['rm', 'get_helm.sh'], check=True)
+                ConsoleOutput.print_green("Helm installed successfully")
+            elif system == "windows":
+                # 使用 chocolatey 安装 helm
+                ConsoleOutput.print_yellow("Installing Helm using Chocolatey...")
+                subprocess.run(['choco', 'install', 'kubernetes-helm', '-y'], check=True)
+                ConsoleOutput.print_green("Helm has been installed. Please restart your terminal to use helm command.")
+            else:
+                raise Exception(ConsoleOutput.print_red(f"Unsupported operating system: {system}"))
+            
+            logger.info("Helm installed successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            error_message = f"Failed to install Helm: {str(e)}"
+            logger.error(error_message)
+            raise Exception(ConsoleOutput.print_red(error_message))
+
     # the result of helm list is a json string, it will contain
     def list_releases(self, namespace=None):
         try:

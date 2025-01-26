@@ -91,6 +91,18 @@ Build the project:
 poetry build
 ```
 
+Running tests:
+
+```shell
+poetry run pytest
+```
+
+Running tests and coverage:
+
+```shell
+poetry run pytest --cov=k8st --cov-report=html
+```
+
 Run the tool:
 
 ```shell

@@ -24,7 +24,7 @@ def load_commands_config(config_file):
 def create_parser(commands_config):
     parser = argparse.ArgumentParser(description="K8s Tool")
     parser.add_argument('--debug', '-d', action='store_true', help='Enable debug logging')
-    parser.add_argument('--reload', '-r', action='store_true', help='Force fetch Helm list from server')
+    parser.add_argument('--reload', '-r', action='store_true', help='Force fetch all resources from cluster')
     parser.add_argument('--namespace','-n', type=str, default='default', help='Kubernetes namespace (default: default)',required=False)
     subparsers = parser.add_subparsers(dest='command')
     for command in commands_config['commands']:
@@ -39,9 +39,18 @@ def create_parser(commands_config):
                     kwargs['action'] = arg['action']
                 if arg.get('type'):
                     kwargs['type'] = arg['type']
-                if arg.get('required'):
-                    kwargs['required'] = arg.get('required')
-                subparser.add_argument(arg['name'], **kwargs)
+                kwargs['required'] = bool(arg.get('required',False))
+                name = arg['name']
+
+                if not name.startswith('-'):
+                    name = '--' + name.lstrip('-')
+                if arg.get('short'):
+                    short_name = arg['short']
+                    if not short_name.startswith('-'):
+                        short_name = '-' + short_name.lstrip('-')
+                    subparser.add_argument(name, short_name, **kwargs)
+                else:
+                    subparser.add_argument(name, **kwargs)
     return parser
 
 def exists_initialization():

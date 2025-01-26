@@ -8,8 +8,8 @@ from ..services.resource_service import ResourceService
 from ..utils.console import ConsoleOutput
 from ..core.command_registry import command
 
-@command(name='del-rel-ver', services=[KubeService, HelmService])
-def delete_release_version_secret(args, kube_service: KubeService, helm_service: HelmService) -> None:
+@command(name='clean-release-conflict', services=[KubeService, HelmService])
+def delete_helm_release_version_secret(args, kube_service: KubeService, helm_service: HelmService) -> None:
     """Delete a specific version secret of a release."""
     try:
         # Get release list

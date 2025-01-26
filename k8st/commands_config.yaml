@@ -1,6 +1,6 @@
 commands:
-  - name: del-rel-ver
-    help: "Delete release version secret"
+  - name: clean-release-conflict
+    help: "Delete helm release version secret to fix helm upgrade conflict"
   - name: ctx
     help: "Set kubectl context"
   - name: debug
@@ -8,8 +8,11 @@ commands:
     arguments:
       - name: image
         help: "image to use for debug container"
-        default: "alpine:latest"
-        required: false
+        short: i
+        default: "tokyo2006/dev-tools:latest"
+        required: False
   - name: exec
-    help: "exec into a pod's container"
+    help: "bash into a pod's container"
+  - name: secret
+    help: "Get secret values from a secret"
   

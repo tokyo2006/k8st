@@ -91,6 +91,18 @@ k8st --help
 poetry build
 ```
 
+运行测试（可选）:
+
+```shell
+poetry run pytest
+```
+
+运行测试和生成覆盖率报告（可选）:
+
+```shell
+poetry run pytest --cov=k8st --cov-report=html
+```
+
 运行工具：
 
 ```shell

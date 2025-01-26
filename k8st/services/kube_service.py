@@ -1,15 +1,38 @@
 import subprocess
+import base64
 import json
 from ..constants import Constants
 from ..utils.console import ConsoleOutput
 from ..logger_confiuration import logger
+from .required_package import install_required_package_manager   
+import platform
 
 class KubeService:
     def __init__(self):
         self.min_version = Constants.MIN_KUBECTL_VERSION
         if not self.is_kube_installed():
-            ConsoleOutput.print_red("Kubectl is not installed!Please install kubectl first.")
-            exit(1)
+            ConsoleOutput.print_yellow("Kubectl is not installed. Attempting to install...")
+            system = platform.system().lower()
+            install_required_package_manager(system)
+            try:
+                if system == 'darwin':
+                    # Install kubectl using Homebrew on macOS
+                    subprocess.run(['brew', 'install', 'kubectl'], check=True)
+                elif system == 'linux':
+                    # Install kubectl on Linux
+                    subprocess.run(['curl', '-LO', 'https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl'], check=True)
+                    subprocess.run(['chmod', '+x', './kubectl'], check=True)
+                    subprocess.run(['sudo', 'mv', './kubectl', '/usr/local/bin/kubectl'], check=True)
+                elif system == 'windows':
+                    # Install kubectl using Chocolatey on Windows
+                    subprocess.run(['choco', 'install', 'kubernetes-cli'], check=True)
+
+                ConsoleOutput.print_green("Successfully installed kubectl!")
+            except subprocess.CalledProcessError as e:
+                ConsoleOutput.print_red(f"Failed to install kubectl: {str(e)}")
+                ConsoleOutput.print_yellow("Please install kubectl manually following the official documentation:")
+                ConsoleOutput.print_yellow("https://kubernetes.io/docs/tasks/tools/")
+                exit(1)
         if not self.check_kubectl_version():
             ConsoleOutput.print_red(f"Kubectl version is lower than the minimum required version {self.min_version}. Please upgrade kubectl.")
             exit(1)
@@ -144,3 +167,48 @@ class KubeService:
         except subprocess.CalledProcessError as e:
             ConsoleOutput.print_red(f"Error attached pod {pod_name}'s container {container_name}")
             logger.error(f"Error attached pod {pod_name}'s container {container_name}: {e.stderr}")
+
+    def list_secrets(self, namespace='default'):
+        try:
+            result = subprocess.run(['kubectl', 'get', 'secrets', '-n', namespace, '-o', 'json'], capture_output=True, text=True, check=True)
+            secrets = json.loads(result.stdout)
+            secret_list = []
+            for item in secrets['items']:
+                secret = {}
+                name = item['metadata']['name']
+                secret['name'] = name
+                secret['values'] = self.get_secret_values(name, namespace)
+                secret_list.append(secret)
+            logger.debug(f"Found secrets in namespace {namespace}: {secret_list}")
+            return secret_list
+        except subprocess.CalledProcessError as e:
+            ConsoleOutput.print_red(f"Error fetching secrets in namespace {namespace}")
+            logger.error(f"Error fetching secrets in namespace {namespace}: {e.stderr}")
+            return []
+
+    def get_secret_values(self, secret_name, namespace='default'):
+        try:
+            result = subprocess.run(['kubectl', 'get', 'secret', secret_name, '-n', namespace, '-o', 'json'], capture_output=True, text=True, check=True)
+            secret = json.loads(result.stdout)
+            data = secret['data']
+            values = {}
+            for key, value in data.items():
+                decoded_value = base64.b64decode(value).decode('utf-8')
+                values[key] = decoded_value
+            logger.debug(f"Fetched secret values for {secret_name}: {values}")
+            return values
+        except subprocess.CalledProcessError as e:
+            ConsoleOutput.print_red(f"Error fetching secret values for {secret_name}")
+            logger.error(f"Error fetching secret values for {secret_name}: {e.stderr}")
+            return {}
+
+    def delete_release_version(self, release_name, release_version, ns='default'):
+        try:
+            command = ['kubectl', 'delete', 'secret', release_version, '-n', ns]
+            logger.debug(f"Running command: {' '.join(command)}")
+            subprocess.run(command, check=True)
+        except subprocess.CalledProcessError as e:
+            PrintTools.print_red(f"Error deleting release version {release_version}")
+            logger.error(f"Error deleting release version {release_version}: {e.stderr}")
+            return False
+        return True

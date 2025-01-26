@@ -11,7 +11,7 @@ from ..core.command_registry import command
 @command(name='debug', services=[KubeService, HelmService])
 def debug_pod(args, kube_service: KubeService, helm_service: HelmService) -> None:
     try:
-        selected_resources = get_selected_resources(kube_service, helm_service)
+        selected_resources = get_selected_resources(kube_service, helm_service,args.reload)
         if not selected_resources:
             return
         selected_pod = selected_resources['pod']    
@@ -35,11 +35,11 @@ def exec_pod(args, kube_service: KubeService, helm_service: HelmService) -> None
         logger.error(f"An error occurred during pod debugging: {e}")
 
 
-def get_selected_resources(kube_service: KubeService, helm_service: HelmService):
+def get_selected_resources(kube_service: KubeService, helm_service: HelmService, reload=False):
     try:
         # Get release list
         resource_service = ResourceService(kube_service, helm_service)
-        deployments = resource_service.get_deployments(args.reload)
+        deployments = resource_service.get_deployments(reload)
         deployment_names = [deployment['name'] for deployment in deployments]
         
         # Prompt user to select release

@@ -56,3 +56,27 @@ class ResourceService:
                 return {}
 
         return deployments if deployments is not None else {}
+
+    def get_secrets(self, reload=False) -> dict:
+        context = self.kube_service.get_current_context()
+        temp_file_path = FileUtils.get_temp_file_path(f'k8s_secrets_{context}.json')
+        
+        try:
+            secrets = FileUtils.read_from_file(temp_file_path)
+        except Exception as e:
+            ConsoleOutput.print_red(f"Error reading file {temp_file_path}: {e}")
+            logger.error(f"Error reading file {temp_file_path}: {e}")
+            secrets = None
+
+        if secrets is not None and not reload:
+            logger.debug(f"Reading Kubernetes secrets from {temp_file_path}")
+        else:
+            logger.debug("Fetching Kubernetes secrets using kubectl")
+            try:
+                secrets = self.kube_service.list_secrets()
+                FileUtils.write_to_file(temp_file_path, secrets)
+            except Exception as e:
+                ConsoleOutput.print_red(f"Error fetching Kubernetes secrets: {e}")
+                logger.error(f"Error fetching Kubernetes secrets: {e}")
+                return {}
+        return secrets if secrets is not None else {}
