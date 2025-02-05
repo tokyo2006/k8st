@@ -62,9 +62,9 @@ jobs:
           path: dist/*
 
       - name: Create Release
+        if: steps.bump.outputs.new_version != ''
         env:
           GITHUB_TOKEN: ${{ secrets.K8ST_TOKEN }}
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
           files: dist/*
