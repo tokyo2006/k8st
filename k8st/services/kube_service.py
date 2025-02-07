@@ -105,10 +105,10 @@ class KubeService:
             logger.error(f"Error fetching release versions: {e.stderr}")
             return []
 
-    def get_pods_by_deployment(self, deployment_name, app_label ,namespace='default'):
+    def get_pods_by_deployment(self, deployment_name, label_key, app_label ,namespace='default'):
         try:
             deployment_name = deployment_name.rsplit('-', 1)[0]
-            command = ['kubectl', 'get', 'pods', '-n', namespace, '-l', f'app={app_label}', '-o', 'jsonpath={.items[*].metadata.name}']
+            command = ['kubectl', 'get', 'pods', '-n', namespace, '-l', f'{label_key}={app_label}', '-o', 'jsonpath={.items[*].metadata.name}']
             logger.debug(f"Running command: {' '.join(command)}")
             result = subprocess.run(command, capture_output=True, text=True, check=True)
             pods = result.stdout.split()
@@ -148,9 +148,12 @@ class KubeService:
             for item in deployments['items']:
                 deployment = {}
                 name = item['metadata']['name']
-                app_label = item['spec']['template']['metadata']['labels'].get('app', 'N/A')
+                labels = item['spec']['template']['metadata']['labels']
+                app_label_key = next(iter(labels.keys()))
+                app_label = labels[app_label_key]
                 deployment['name'] = name
                 deployment['label'] = app_label
+                deployment['lable_key'] = app_label_key
                 deployment_list.append(deployment)
             logger.debug(f"Found deployments in namespace {namespace}: {deployment_list}")
             return deployment_list

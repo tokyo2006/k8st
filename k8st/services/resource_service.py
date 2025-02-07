@@ -32,9 +32,9 @@ class ResourceService:
 
         return releases if releases is not None else {}
 
-    def get_deployments(self, reload=False) -> dict:
+    def get_deployments(self, reload=False,namespace = "default") -> dict:
         context = self.kube_service.get_current_context()
-        temp_file_path = FileUtils.get_temp_file_path(f'k8s_deployments_{context}.json')
+        temp_file_path = FileUtils.get_temp_file_path(f'k8s_deployments_{context}_{namespace}.json')
         
         try:
             deployments = FileUtils.read_from_file(temp_file_path)
@@ -48,7 +48,7 @@ class ResourceService:
         else:
             logger.debug("Fetching Kubernetes deployments using kubectl")
             try:
-                deployments = self.kube_service.list_deployments()
+                deployments = self.kube_service.list_deployments(namespace)
                 FileUtils.write_to_file(temp_file_path, deployments)
             except Exception as e:
                 ConsoleOutput.print_red(f"Error fetching Kubernetes deployments: {e}")

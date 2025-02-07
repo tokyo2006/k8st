@@ -35,6 +35,8 @@ def create_parser(commands_config):
                 kwargs = {
                     'help': arg['help']
                 }
+                if arg.get('default'):
+                    kwargs['default'] = arg['default']
                 if arg.get('action'):
                     kwargs['action'] = arg['action']
                 if arg.get('type'):

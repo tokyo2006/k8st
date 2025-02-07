@@ -11,7 +11,7 @@ from ..core.command_registry import command
 @command(name='debug', services=[KubeService, HelmService])
 def debug_pod(args, kube_service: KubeService, helm_service: HelmService) -> None:
     try:
-        selected_resources = get_selected_resources(kube_service, helm_service,args.reload)
+        selected_resources = get_selected_resources(kube_service, helm_service,args.reload,args.namespace)
         if not selected_resources:
             return
         selected_pod = selected_resources['pod']    
@@ -35,11 +35,11 @@ def exec_pod(args, kube_service: KubeService, helm_service: HelmService) -> None
         logger.error(f"An error occurred during pod debugging: {e}")
 
 
-def get_selected_resources(kube_service: KubeService, helm_service: HelmService, reload=False):
+def get_selected_resources(kube_service: KubeService, helm_service: HelmService, reload=False,namespace=None):
     try:
         # Get release list
         resource_service = ResourceService(kube_service, helm_service)
-        deployments = resource_service.get_deployments(reload)
+        deployments = resource_service.get_deployments(reload,namespace)
         deployment_names = [deployment['name'] for deployment in deployments]
         
         # Prompt user to select release
@@ -50,11 +50,13 @@ def get_selected_resources(kube_service: KubeService, helm_service: HelmService,
         app_label = None
         for deployment in deployments:
             if deployment['name'] == selected_deployment:
+                ConsoleOutput.print_green(f"Deployment: {deployment}")
                 app_label = deployment['label']
+                app_label_key = deployment['lable_key']
                 logger.debug(f"The app label for deployment '{selected_deployment}' is: {app_label}")
                 break
         
-        pods = kube_service.get_pods_by_deployment(selected_deployment, app_label)
+        pods = kube_service.get_pods_by_deployment(selected_deployment, app_label_key,app_label,namespace)
         if not pods:
             ConsoleOutput.print_yellow(f"No pods found for deployment: {selected_deployment}, please check kubernetes cluster connection!")
             return
@@ -63,7 +65,7 @@ def get_selected_resources(kube_service: KubeService, helm_service: HelmService,
         if not selected_pod:
             return
 
-        containers = kube_service.get_containers_by_pod(selected_pod)
+        containers = kube_service.get_containers_by_pod(selected_pod,namespace)
         selected_container = prompt_user_for_container(containers)
         if not selected_container:
             return None
