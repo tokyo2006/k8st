@@ -56,6 +56,13 @@ class KubeService:
         except FileNotFoundError:
             return False
     
+    def is_namespace_exists(self,namespace):
+        try:
+            result = subprocess.run(['kubectl', 'get', 'namespace', namespace], capture_output=True, text=True, check=True)
+            return True
+        except subprocess.CalledProcessError:
+            return False
+
     def set_context(self,context):
         try:
             subprocess.run(['kubectl', 'config', 'use-context', context], capture_output=True, text=True, check=True)
@@ -122,7 +129,7 @@ class KubeService:
     def debug_pod(self, pod_name, image,container_name,namespace='default'):
         try:
             ConsoleOutput.print_green(f"Debugging pod {pod_name} in namespace {namespace}")
-            command = ['kubectl', 'debug', '-it', pod_name, '-n', namespace, f'--image={image}', f'--target={container_name}','--','sh']
+            command = ['kubectl', 'debug', '-it', pod_name, '-n', namespace, f'--image={image}', f'--target={container_name}','--share-processes','--','sh']
             logger.debug(f"Running command: {' '.join(command)}")
             subprocess.run(['kubectl', 'debug', '-it', pod_name, '-n', namespace, f'--image={image}', f'--target={container_name}','--','sh'], check=True)
            
@@ -162,10 +169,49 @@ class KubeService:
             logger.error(f"Error fetching deployments in namespace {namespace}: {e.stderr}")
             return []
 
+    def copy_from_pod(self, pod_name, container_name, remote_path, local_path, namespace='default'):
+        """
+        Copy files from a container in a pod to local machine
+        
+        Args:
+            pod_name (str): Name of the pod
+            container_name (str): Name of the container
+            remote_path (str): Path of the file/directory in the container
+            local_path (str): Local path where to save the file/directory
+            namespace (str): Kubernetes namespace
+        """
+        try:
+            command = ['kubectl', 'cp', 
+                      f'{namespace}/{pod_name}:{remote_path}', 
+                      local_path,
+                      '-c', container_name]
+            
+            logger.debug(f"Running command: {' '.join(command)}")
+            subprocess.run(command, check=True)
+            ConsoleOutput.print_green(f"Successfully copied from {remote_path} to {local_path}")
+            return True
+            
+        except subprocess.CalledProcessError as e:
+            ConsoleOutput.print_red(f"Error copying files from pod {pod_name}'s container {container_name}")
+            logger.error(f"Error copying files: {e.stderr}")
+            return False
+
     def exec_pod(self, pod_name, container_name, namespace='default'):
         try:
-            command = ['kubectl', 'exec', '-it', pod_name, '-n', namespace, '-c', container_name, '--', '/bin/sh', '-c', 'TERM=xterm-256color; [ -x /bin/bash ] && bash || sh']
-            subprocess.run(command, capture_output=True, text=True, check=True)
+                        # 先尝试检查容器中是否有 bash
+            check_bash = subprocess.run(
+                ['kubectl', 'exec', pod_name, '-n', namespace, '-c', container_name, '--', 'which', 'bash'],
+                capture_output=True,
+                text=True
+            )
+            
+            if check_bash.returncode == 0:
+                shell = 'bash'
+            else:
+                shell = 'sh'
+            command = ['kubectl', 'exec' , pod_name, '-n', namespace, '-c', container_name, '-it', '--', shell]
+            logger.debug(f"Running command: {' '.join(command)}")
+            subprocess.run(command, stdin=None, stdout=None, stderr=None)
 
         except subprocess.CalledProcessError as e:
             ConsoleOutput.print_red(f"Error attached pod {pod_name}'s container {container_name}")

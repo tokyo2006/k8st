@@ -11,6 +11,17 @@ commands:
         short: i
         default: "tokyo2006/dev-tools:latest"
         required: False
+  - name: copy
+    help: "Copy files from pod"
+    arguments:
+      - name: local
+        help: "local path to copy to"
+        short: l
+        required: True
+      - name: remote
+        help: "remote path to copy from"
+        short: r
+        required: True
   - name: exec
     help: "bash into a pod's container"
   - name: secret

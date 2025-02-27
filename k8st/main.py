@@ -10,6 +10,7 @@ from .constants import Constants
 import importlib
 from .core.command_registry import command_registry
 
+
 def dynamic_import_commands():
     commands_dir = os.path.join(os.path.dirname(__file__), 'commands')
     for filename in os.listdir(commands_dir):
@@ -88,7 +89,7 @@ def main():
     
     # Set logger level based on debug argument
     set_log_level(args)
-    
+    # Check if namespace exists
     # Check if the tool is initialized, except for the "init" command
     # check_initialization(args)
     
