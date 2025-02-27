@@ -40,6 +40,8 @@ k8st ctx
 
 #### debug
 
+![debug](https://res.cloudinary.com/xinta/image/upload/v1740646891/k8st/debug.gif)
+
 `debug` - bash into a pod through debug container
 
 **Usage**:  
@@ -59,6 +61,8 @@ k8st -n argocd debug
 
 #### exec
 
+![exec](https://res.cloudinary.com/xinta/image/upload/v1740647240/k8st/exec.gif)
+
 `exec` - bash into a pod's container
 
 **Usage**:  
@@ -71,6 +75,8 @@ k8st -n argocd debug
 ---
 
 #### copy
+
+![copy](https://res.cloudinary.com/xinta/image/upload/v1740648566/k8st/copy.gif)
 
 `copy` - Copy files from pod
 

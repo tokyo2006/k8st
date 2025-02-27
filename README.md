@@ -40,6 +40,8 @@ k8st ctx
 
 #### debug
 
+![debug](https://res.cloudinary.com/xinta/image/upload/v1740646891/k8st/debug.gif)
+
 `debug` - 通过工具容器进入指定Pod的指定容器bash环境
 
 **用法**:  
@@ -59,18 +61,22 @@ k8st -n argocd debug
 
 #### exec
 
+![exec](https://res.cloudinary.com/xinta/image/upload/v1740647240/k8st/exec.gif)
+
 `exec` - bash into a pod's container
 
 **用法**:  
 `exec`
 
 ```bash
-k8st -n argocd debug
+k8st -n argocd exec
 ```
 
 ---
 
 #### copy
+
+![copy](https://res.cloudinary.com/xinta/image/upload/v1740648566/k8st/copy.gif)
 
 `copy` - Copy files from pod
 
@@ -91,6 +97,8 @@ k8st -n argocd copy -l <LOCAL FILE>  -r <REMOTE FILE>
 ---
 
 #### secret
+
+![secret](https://res.cloudinary.com/xinta/image/upload/v1740647908/k8st/secret.gif)
 
 `secret` - 从secret中获取秘钥明文（仅限于明文秘钥）
 
