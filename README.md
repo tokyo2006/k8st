@@ -22,13 +22,87 @@ k8st 是一个简化 Kubernetes 服务操作的命令行工具。
 
 ### 基本使用
 
-#### Kubernetes 上下文切换
+> 如果你不设置`--namespace/-n`参数的时候默认namespace是`default`
+
+#### ctx
+
+`ctx` - Kubernetes上下文切换
+
+**用法**:  
+`ctx`
 
 ```shell
 k8st ctx
 ```
 
-更多命令说明请使用帮助命令：
+---
+
+#### debug
+
+`debug` - 通过工具容器进入指定Pod的指定容器bash环境
+
+**用法**:  
+`debug [-i IMAGE]`
+
+**参数**:
+
+| 参数 | 短名 | 描述                   | 默认值                     | 必要 |
+|-----------|-------|-------------------------------|-----------------------------|----------|
+| `--image`   | `-i`  | Image to use for debug container | tokyo2006/dev-tools:latest | No       |
+
+```bash
+k8st -n argocd debug
+```
+
+---
+
+#### exec
+
+`exec` - bash into a pod's container
+
+**用法**:  
+`exec`
+
+```bash
+k8st -n argocd debug
+```
+
+---
+
+#### copy
+
+`copy` - Copy files from pod
+
+**用法**:  
+`copy -l LOCAL_PATH -r REMOTE_PATH`
+
+**参数**:
+
+| 参数 | 短名 | 描述                     | 必要 |
+|-----------|-------|---------------------------------|----------|
+| `--local`   | `-l`  | 存储到本地的文件路径           | Yes      |
+| `--remote`  | `-r`  | 容器中的文件路径        | Yes      |
+
+```bash
+k8st -n argocd copy -l <LOCAL FILE>  -r <REMOTE FILE>
+```
+
+---
+
+#### secret
+
+`secret` - 从secret中获取秘钥明文（仅限于明文秘钥）
+
+**用法**:  
+`secret`
+
+```bash
+k8st -n argocd secret
+```
+
+---
+
+更多命令可以通过help命令查看:
 
 ```shell
 k8st --help

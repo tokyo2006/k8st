@@ -18,15 +18,89 @@ You can install k8st in one of two ways:
    pip install <Release package>
    ```
 
-   Download from: [Latest Release](https://github.com/tokyo2006/k8st/releases/tag/latest)
+Download from: [Latest Release](https://github.com/tokyo2006/k8st/releases/tag/latest)
 
 ### Basic Usage
 
-#### Kubernetes Context Switching
+> The namespace default values is `default` if you do not use `--namespace/-n` parameter
+
+#### ctx
+
+`ctx` - Kubernetes Context Switching
+
+**Usage**:  
+`ctx`
 
 ```shell
 k8st ctx
 ```
+
+---
+
+#### debug
+
+`debug` - bash into a pod through debug container
+
+**Usage**:  
+`debug [-i IMAGE]`
+
+**Arguments**:
+
+| Parameter | Short | Description                   | Default                     | Required |
+|-----------|-------|-------------------------------|-----------------------------|----------|
+| `image`   | `-i`  | Image to use for debug container | tokyo2006/dev-tools:latest | No       |
+
+```bash
+k8st -n argocd debug
+```
+
+---
+
+#### exec
+
+`exec` - bash into a pod's container
+
+**Usage**:  
+`exec`
+
+```bash
+k8st -n argocd debug
+```
+
+---
+
+#### copy
+
+`copy` - Copy files from pod
+
+**Usage**:  
+`copy -l LOCAL_PATH -r REMOTE_PATH`
+
+**Arguments**:
+
+| Parameter | Short | Description                     | Required |
+|-----------|-------|---------------------------------|----------|
+| `local`   | `-l`  | Local path to copy to           | Yes      |
+| `remote`  | `-r`  | Remote path to copy from        | Yes      |
+
+```bash
+k8st --debug -n argocd copy -l <LOCAL FILE>  -r <REMOTE FILE>
+```
+
+---
+
+#### secret
+
+`secret` - Get secret values from a secret
+
+**Usage**:  
+`secret`
+
+```bash
+k8st -n argocd secret
+```
+
+---
 
 For more command details, use the help command:
 
