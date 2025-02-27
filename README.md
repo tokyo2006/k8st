@@ -15,10 +15,11 @@ k8st 是一个简化 Kubernetes 服务操作的命令行工具。
 2. 直接安装发布包：
 
    ```shell
-   pip install <Release package>
+   # 如果没有pipx请先安装
+   pipx install <Release package>
    ```
 
-   下载地址：[最新版本](https://github.com/tokyo2006/k8st/releases/tag/latest)
+下载地址：[发布地址](https://github.com/tokyo2006/k8st/releases)
 
 ### 基本使用
 

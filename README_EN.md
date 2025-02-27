@@ -15,10 +15,11 @@ You can install k8st in one of two ways:
 2. Install from release package:
 
    ```shell
-   pip install <Release package>
+   # please install pipx first if you don't have it
+   pipx install <Release package>
    ```
 
-Download from: [Latest Release](https://github.com/tokyo2006/k8st/releases/tag/latest)
+Download address: [Releases](https://github.com/tokyo2006/k8st/releases)
 
 ### Basic Usage
 
